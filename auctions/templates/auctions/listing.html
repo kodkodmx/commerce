@@ -1,0 +1,117 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% if user == listing.winner%}
+    <div class="alert alert-success" role="alert">
+        Congratulations! You won the auction!
+    </div>
+    {% endif %}
+    <h2>Listing: {{ listing.title }}</h2>
+    <img class="center" src="{{ listing.image_url }}" alt="Image for {{ listing.title }}">
+    <h6>Description: {{ listing.description }}</h6>
+    {% if listing.bids == 0 %}
+    <h3>Starting Price: ${{ listing.price }}</h3>
+    {% else %}
+    <h3>Current Bid: ${{ listing.current_bid }}</h3>
+    {% endif %}
+    <br>
+    <h4>Actions</h4>
+    {% if user.is_authenticated %}
+        {% if user in listing.watchlist.all %}
+            <form action= "{% url 'remove' listing.id %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Remove from watchlist</button>
+            </form>
+        {% else %}            
+            <form action= "{% url 'add' listing.id %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Add to watchlist</button>
+            </form>
+        {% endif %}
+        {% if user == listing.owner %}
+        <p>You are the owner of this listing</p>
+            {% if listing.active %}
+            <form action= "{% url 'close' listing.id %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Close listing</button>
+            </form>
+            {% endif %}
+        {% endif %}
+    {% else %}
+    <p><a href="{% url 'login' %}">Log in</a> to view more avaible options.</p>
+    {% endif %}
+    {% if user.is_authenticated %}
+    {% if user != listing.owner %}
+    <br>
+
+    <h4>Bid</h4>
+    {% if listing.active == False %}
+        <p>This listing is closed</p>
+    {% else %}
+        {% if user == listing.owner %}
+        <p>You are the owner of this listing</p>
+        {% elif user == listing.current_bidder %}
+        <p>{{ listing.bids }} bid(s) so far. Your bid is the current highest bid</p>
+        {% else %}
+        {% if listing.bids == 0 %}
+        <p>Be the first to bid on this item</p>
+        {% else %}
+        <p>{{ listing.bids }} bid(s) so far. The current highest bid is ${{ listing.current_bid }}</p>
+        {% endif %}
+        {% endif %}
+        <form action= "{% url 'listing' listing.id %}" method="post">
+        {% csrf_token %}
+        <input type="number" name="bid" id="bid" placeholder="Enter your bid">
+        <br>
+        <br>
+        <button class="btn btn-primary" type="submit">Place Bid</button>
+        </form>
+        {% if message %}
+        <div class="alert alert-danger" role="alert">
+            {{ message }}
+        </div>
+        {% endif %}
+        <br>
+    {% endif %}
+    {% endif %}
+    {% endif %}
+    <h4>Details</h4>
+    <ul>
+        <li>Owner: {{ listing.owner }}</li>
+        <li>Category: {{ listing.category }}</li>
+        <li>Created on: {{ listing.created }}</li>
+        <li>Current bid: ${{ listing.current_bid }}</li>
+        <li>Number of bids: {{ listing.bids }}</li>
+        <li>Current highest bidder: {{ listing.current_bidder }}</li>
+        <li>On Watchlist: {{ listing.watchlist.count }}</li>
+        <li>Active: {{ listing.active }}</li>
+        <li>Winner: {{ listing.winner }}</li>
+        <li>Comments: {{ comments.count }}</li>
+    </ul>
+    <br>
+    
+    <h4>Comments</h4>
+    {% if comments.count == 0 %}
+        <p>No comments yet</p>
+    {% else %}
+    {% for comment in comments %}
+        <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ comment.user }}</h5>
+            <p class="card-text">{{ comment.comment }}</p>
+            <p class="card-text">{{ comment.created }}</p>
+        </div>
+        </div>
+    {% endfor %}
+    {% endif %}
+    <br>
+    {% if user.is_authenticated %}
+    <form action= "{% url 'add_comment' listing.id %}" method="post">
+        {% csrf_token %}
+        <textarea name="comment" id="comment" cols="30" rows="3" placeholder="Enter your comment"></textarea>
+        <br>
+        <br>
+        <button class="btn btn-primary" type="submit">Post Comment</button>
+    </form>
+    {% endif %}
+{% endblock %}
