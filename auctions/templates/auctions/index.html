@@ -9,6 +9,7 @@
                 <h5 class="card-title">{{ listing.title }}</h5>
                 <p class="card-text">{{ listing.description }}</p>
                 <img class="center" src="{{ listing.image_url }}" alt="Image for {{ listing.title }}">
+                <p class="card-text">Current Price: ${{ listing.price }}</p>
                 <br>
                 <a href="{% url 'listing' listing.id %}" class="btn btn-primary">View Listing</a>
             </div>

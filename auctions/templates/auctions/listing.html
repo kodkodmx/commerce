@@ -1,6 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+<div>
     {% if user == listing.winner%}
     <div class="alert alert-success" role="alert">
         Congratulations! You won the auction!
@@ -114,4 +115,5 @@
         <button class="btn btn-primary" type="submit">Post Comment</button>
     </form>
     {% endif %}
+</div>
 {% endblock %}
